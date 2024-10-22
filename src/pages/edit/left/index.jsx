@@ -1,40 +1,44 @@
-import { useDraggable } from '@dnd-kit/core';
+import { useDrag } from 'react-dnd';
 import PropTypes from 'prop-types';
 
-// 生成可拖拽的 Div 组件
-function DraggableDiv({ id, children }) {
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id,
-    });
+import { menuProps } from '@/pages/edit/data';
 
-    const style = {
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-        width: 100,
-        margin: '10px',
-        backgroundColor: 'lightblue',
-        cursor: 'grab',
-    };
+import './index.less';
+
+// 生成可拖拽的 Div 组件
+function DraggableDiv({ item }) {
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'BOX',
+        item,
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    }));
 
     return (
-        <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-            {children}
+        <div
+            ref={drag}
+            style={{
+                opacity: isDragging ? 0.5 : 1,
+            }}
+            className="drag-item"
+        >
+            <img src={item.img} alt={item.name} srcSet="" />
         </div>
     );
 }
 
 DraggableDiv.propTypes = {
-    id: PropTypes.string,
-    children: PropTypes.element,
+    item: PropTypes.object,
 };
 
 const Component = () => {
     return (
-        <div>
-            {['div1', 'div2', 'div3'].map((id) => (
-                <DraggableDiv key={id} id={id}>
-                    <div>{id}</div>
-                </DraggableDiv>
-            ))}
+        <div className="tools-left">
+            {Object.keys(menuProps).map((key) => {
+                const item = menuProps[key];
+                return <DraggableDiv key={key} item={item} />;
+            })}
         </div>
     );
 };

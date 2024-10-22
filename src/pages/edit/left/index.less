@@ -1,0 +1,17 @@
+@borderColor: #ccc;
+.tools-left {
+    width: 100px;
+    box-sizing: border-box;
+    padding: 20px;
+    border-right: 1px solid @borderColor;
+    box-sizing: border-box;
+    .drag-item {
+        display: flex;
+        height: 40px;
+        margin-bottom: 10px;
+        cursor: 'move';
+        border: 1px solid @borderColor;
+        align-items: center;
+        justify-content: center;
+    }
+}

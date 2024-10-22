@@ -1,57 +1,51 @@
-import { useSelector } from 'react-redux';
-import { useDroppable } from '@dnd-kit/core';
-import PropTypes from 'prop-types';
+import { useDrop } from 'react-dnd';
+import { useDispatch, useSelector } from 'react-redux';
+import { setDroppedItems } from '@/store/features/drawSlice';
 
 import './index.less';
 
-// Droppable 区域组件
-function DroppableArea({ children, onDrop }) {
-    const { isOver, setNodeRef } = useDroppable({
-        id: 'droppable',
-    });
-
-    const style = {
-        border: '2px dashed black',
-        height: '400px',
-        width: '300px',
-        backgroundColor: isOver ? 'lightgreen' : 'lightgray',
-        position: 'relative',
-    };
-
-    return (
-        <div ref={setNodeRef} style={style}>
-            {children}
-        </div>
-    );
-}
-
-DroppableArea.propTypes = {
-    onDrop: PropTypes.func,
-    children: PropTypes.arrayOf(PropTypes.element),
-};
-
 const Component = () => {
     const { droppedItems } = useSelector((state) => state.draw);
+    const dispatch = useDispatch();
 
-    const { isOver, setNodeRef } = useDroppable({
-        id: 'droppable',
-    });
+    const onDrop = (item, clientOffset) => {
+        const { x, y } = clientOffset;
+        const containerEle = document.getElementById('container');
+        const newItem = {
+            name: item.name,
+            x: x + containerEle.scrollLeft - 140,
+            y: y + containerEle.scrollTop - 90,
+        };
+        dispatch(setDroppedItems(newItem));
+    };
+
+    const [{ isOver }, drop] = useDrop(() => ({
+        accept: 'BOX',
+        drop: (item, monitor) => {
+            const clientOffset = monitor.getClientOffset();
+            onDrop(item, clientOffset);
+        },
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+        }),
+    }));
 
     return (
         <div className="content-center" id="container">
-            <div className="workarea" style={{ width: 1920, height: 1080 }} ref={setNodeRef} id="workarea">
-                {droppedItems.map((item, index) => (
+            <div className="workarea" style={{ width: 1920, height: 1080 }} ref={drop}>
+                {droppedItems.map((ele, i) => (
                     <div
-                        key={index}
+                        key={i}
                         style={{
                             position: 'absolute',
-                            top: `${item.position.y}px`,
-                            left: `${item.position.x}px`,
-                            width: 100,
-                            backgroundColor: 'lightcoral',
+                            left: ele.x,
+                            top: ele.y,
+                            width: 50,
+                            height: 50,
+                            border: '1px solid red',
                         }}
                     >
-                        <div>{item.content}</div>
+                        {ele.name}
                     </div>
                 ))}
             </div>
