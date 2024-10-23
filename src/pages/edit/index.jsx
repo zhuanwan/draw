@@ -1,18 +1,12 @@
-import { useEffect } from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useDispatch, useSelector } from 'react-redux';
-
-import { setDroppedItems } from '@/store/features/drawSlice';
-
-import './index.less';
-
+import Right from './right';
+import Header from './header'
 import Center from './center';
 import Left from './left';
+import './index.less';
 
 const Component = () => {
-    const dispatch = useDispatch();
-
     // // 监听鼠标全局位置
     // useEffect(() => {
     //     const handleMouseDown = (event) => {
@@ -28,12 +22,11 @@ const Component = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <div className="edit-page">
-                <div className="menu-bar">1</div>
+                <Header />
                 <div className="content">
                     <Left />
                     <Center />
-
-                    <div className="tools-panel">3</div>
+                    <Right />
                 </div>
             </div>
         </DndProvider>

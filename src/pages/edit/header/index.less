@@ -1,0 +1,19 @@
+@borderColor: #ccc;
+.menu-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    display: flex;
+    height: 50px;
+    box-sizing: border-box;
+    border-bottom: 1px solid @borderColor;
+    justify-content: space-between;
+    .right {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        .ant-btn {
+            margin-right: 20px;
+        }
+    }
+}

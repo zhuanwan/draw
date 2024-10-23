@@ -1,20 +1,25 @@
 import { useDrop } from 'react-dnd';
 import { useDispatch } from 'react-redux';
-import { setDroppedItems } from '@/store/features/drawSlice';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 
-const Component = ({ children }) => {
+const Component = ({ children, cb }) => {
     const dispatch = useDispatch();
 
     const onDrop = (item, clientOffset) => {
         const { x, y } = clientOffset;
         const containerEle = document.getElementById('container');
         const newItem = {
-            ...item,
-            x: x + containerEle.scrollLeft - 140,
-            y: y + containerEle.scrollTop - 90,
+            type: item.type,
+            left: x + containerEle.scrollLeft - 140,
+            top: y + containerEle.scrollTop - 90,
+            data: {
+                type: item.type,
+                name: item.name,
+                uuid: uuidv4()
+            }
         };
-        dispatch(setDroppedItems(newItem));
+        cb(newItem)
     };
 
     const [{ isOver }, drop] = useDrop(() => ({
@@ -37,5 +42,6 @@ const Component = ({ children }) => {
 
 Component.propTypes = {
     chidren: PropTypes.element,
+    cb: PropTypes.func
 };
 export default Component;

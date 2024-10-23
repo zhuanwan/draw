@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setCvs } from '@/store/features/drawSlice';
+import { useDispatch } from 'react-redux';
+import { setCvscActiveObjects } from '@/store/features/drawSlice';
 import * as fabric from 'fabric';
-import { drawLine, drawRect } from '../util';
+import { drawDefaultLine } from '../util';
 import Drop from './Drop';
 import './index.less';
 
 const Component = () => {
-    const { droppedItems, cvs } = useSelector((state) => state.draw);
     const dispatch = useDispatch();
 
     const createCanvas = () => {
@@ -16,39 +15,41 @@ const Component = () => {
             width: 1920,
             height: 1080,
         });
-        drawRect(_canvas, {
-            width: 1920,
-            height: 1080,
-            fill: '#fff',
-            left: 0,
-            top: 0,
-            selectable: false,
-            evented: false,
-        });
-        dispatch(setCvs(_canvas));
+        _canvas.backgroundColor = '#fff';
+        _canvas.renderAll();
+
+        function updateActiveObjects() {
+            const allSelectedObjects = _canvas.getActiveObjects(); // 获取所有选中的对象
+            dispatch(setCvscActiveObjects(allSelectedObjects));
+        }
+
+        _canvas.on('mouse:down', updateActiveObjects);
+        _canvas.on('selection:created', updateActiveObjects);
+        _canvas.on('selection:updated', updateActiveObjects);
+
         return _canvas;
     };
 
-    const draw = (canvas, droppedItems) => {
-        for (let i = 0; i < droppedItems.length; i++) {
-            const { type } = droppedItems[i];
-            switch (type) {
-                case 'line':
-                    drawLine(canvas, droppedItems[i]);
-                    break;
-                default:
-                    break;
-            }
+    const draw = (droppedItem) => {
+        const canvas = window._csv;
+        const { type } = droppedItem;
+        switch (type) {
+            case 'Line':
+                drawDefaultLine(canvas, droppedItem);
+                break;
+            default:
+                break;
         }
     };
 
     useEffect(() => {
-        const canvas = cvs || createCanvas();
-        draw(canvas, droppedItems);
-    }, [droppedItems]);
+        if (!window._csv) {
+            window._csv = createCanvas();
+        }
+    }, []);
 
     return (
-        <Drop>
+        <Drop cb={draw}>
             <canvas id="canvas"></canvas>
         </Drop>
     );

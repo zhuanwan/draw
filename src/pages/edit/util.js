@@ -1,15 +1,16 @@
 import * as fabric from 'fabric';
-export const drawLine = (canvas, item) => {
-    const { x, y } = item;
+export const drawDefaultLine = (canvas, item) => {
+    const { left, top, ...reset } = item;
     const line = new fabric.Line(
         [
-            x,
-            y, // 起始点坐标
-            x + 100,
-            y + 100, // 结束点坐标
+            left,
+            top, // 起始点坐标
+            left + 100,
+            top, // 结束点坐标
         ],
         {
-            stroke: 'red', // 笔触颜色
+            ...reset,
+            stroke: '#f00', // 笔触颜色
             strokeWidth: 10,
         }
     );

@@ -7,17 +7,17 @@ export const menu = ['line', 'rect', 'triangle', 'circle', 'polygon', 'polyline'
 export const menuProps = {
     line: {
         img: lineSvg,
-        label: '直线',
-        type: 'line',
+        name: '直线',
+        type: 'Line',
     },
     rect: {
         img: rectSvg,
-        label: '矩形',
+        name: '矩形',
         type: 'rect',
     },
     text: {
         img: textSvg,
-        label: '文本',
+        name: '文本',
         type: 'text',
     },
     // triangle: {

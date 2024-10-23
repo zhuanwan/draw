@@ -3,19 +3,15 @@ import { createSlice } from '@reduxjs/toolkit';
 export const drawSlice = createSlice({
     name: 'draw',
     initialState: {
-        cvs: null, // fabric canvas
-        droppedItems: [],
+        cvsActiveObjects: [], // 活动对象
     },
     reducers: {
-        setCvs: (state, action) => {
-            state.cvs = action.payload;
-        },
-        setDroppedItems: (state, action) => {
-            state.droppedItems = [...state.droppedItems, action.payload];
+        setCvscActiveObjects: (state, action) => {
+            state.cvsActiveObjects = action.payload;
         },
     },
 });
 
-export const { setCvs, setDroppedItems } = drawSlice.actions;
+export const { setCvscActiveObjects } = drawSlice.actions;
 
 export default drawSlice.reducer;
