@@ -1,55 +1,56 @@
-import { useDrop } from 'react-dnd';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setDroppedItems } from '@/store/features/drawSlice';
-
+import { setCvs } from '@/store/features/drawSlice';
+import * as fabric from 'fabric';
+import { drawLine, drawRect } from '../util';
+import Drop from './Drop';
 import './index.less';
 
 const Component = () => {
-    const { droppedItems } = useSelector((state) => state.draw);
+    const { droppedItems, cvs } = useSelector((state) => state.draw);
     const dispatch = useDispatch();
 
-    const onDrop = (item, clientOffset) => {
-        const { x, y } = clientOffset;
-        const containerEle = document.getElementById('container');
-        const newItem = {
-            name: item.name,
-            x: x + containerEle.scrollLeft - 140,
-            y: y + containerEle.scrollTop - 90,
-        };
-        dispatch(setDroppedItems(newItem));
+    const createCanvas = () => {
+        console.log('初始化画布');
+        const _canvas = new fabric.Canvas(document.getElementById('canvas'), {
+            width: 1920,
+            height: 1080,
+        });
+        drawRect(_canvas, {
+            width: 1920,
+            height: 1080,
+            fill: '#fff',
+            left: 0,
+            top: 0,
+            selectable: false,
+            evented: false,
+        });
+        dispatch(setCvs(_canvas));
+        return _canvas;
     };
 
-    const [{ isOver }, drop] = useDrop(() => ({
-        accept: 'BOX',
-        drop: (item, monitor) => {
-            const clientOffset = monitor.getClientOffset();
-            onDrop(item, clientOffset);
-        },
-        collect: (monitor) => ({
-            isOver: monitor.isOver(),
-        }),
-    }));
+    const draw = (canvas, droppedItems) => {
+        for (let i = 0; i < droppedItems.length; i++) {
+            const { type } = droppedItems[i];
+            switch (type) {
+                case 'line':
+                    drawLine(canvas, droppedItems[i]);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    useEffect(() => {
+        const canvas = cvs || createCanvas();
+        draw(canvas, droppedItems);
+    }, [droppedItems]);
 
     return (
-        <div className="content-center" id="container">
-            <div className="workarea" style={{ width: 1920, height: 1080 }} ref={drop}>
-                {droppedItems.map((ele, i) => (
-                    <div
-                        key={i}
-                        style={{
-                            position: 'absolute',
-                            left: ele.x,
-                            top: ele.y,
-                            width: 50,
-                            height: 50,
-                            border: '1px solid red',
-                        }}
-                    >
-                        {ele.name}
-                    </div>
-                ))}
-            </div>
-        </div>
+        <Drop>
+            <canvas id="canvas"></canvas>
+        </Drop>
     );
 };
 

@@ -13,17 +13,17 @@ import Left from './left';
 const Component = () => {
     const dispatch = useDispatch();
 
-    // 监听鼠标全局位置
-    useEffect(() => {
-        const handleMouseDown = (event) => {
-            console.log({ x: event.clientX, y: event.clientY });
-        };
+    // // 监听鼠标全局位置
+    // useEffect(() => {
+    //     const handleMouseDown = (event) => {
+    //         console.log({ x: event.clientX, y: event.clientY });
+    //     };
 
-        window.addEventListener('mousedown', handleMouseDown);
-        return () => {
-            window.removeEventListener('mousedown', handleMouseDown);
-        };
-    }, []);
+    //     window.addEventListener('mousedown', handleMouseDown);
+    //     return () => {
+    //         window.removeEventListener('mousedown', handleMouseDown);
+    //     };
+    // }, []);
 
     return (
         <DndProvider backend={HTML5Backend}>
