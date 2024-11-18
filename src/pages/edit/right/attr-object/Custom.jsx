@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Checkbox, ColorPicker, Form, InputNumber, Tooltip, Select, Input, Row, Col } from 'antd';
 import * as fabric from 'fabric';
 const colorFieldNames = ['fill', 'stroke', 'backgroundColor'];
-const jsonFieldNames = ['points', 'strokeDashArray', 'path'];
+const jsonFieldNames = ['points', 'strokeDashArray', 'path', 'styles'];
 
 import {
     globalCompositeOperationOptions,
@@ -12,6 +12,8 @@ import {
     strokeLineCapOptions,
     strokeLineJoinOptions,
     paintFirstOptions,
+    textAlignOptions,
+    directionOptions,
 } from './data';
 
 const Component = () => {
@@ -76,7 +78,7 @@ const Component = () => {
                     }
 
                     if (newObject) {
-                        window._csv.add(newObject)
+                        window._csv.add(newObject);
                         window._csv.setActiveObject(newObject);
                         window._csv.remove(activeObject); // 移除旧对象
                     }
@@ -114,7 +116,6 @@ const Component = () => {
         if (!activeObject) {
             return;
         }
-        console.log(activeObject);
         Object.keys(activeObject).forEach((key) => {
             if (jsonFieldNames.includes(key)) {
                 form.setFieldValue(key, JSON.stringify(activeObject[key]));
@@ -128,6 +129,98 @@ const Component = () => {
     return (
         <Form form={form} onValuesChange={onValuesChange} className="form-com">
             <Form.Item label="type">{activeObject?.type}</Form.Item>
+
+            {activeObject?.type === 'textbox' && (
+                <>
+                    <Form.Item label="text" name="text">
+                        <Input />
+                    </Form.Item>
+                    <Row gutter={20}>
+                        <Col span={12}>
+                            <Form.Item label="fontSize" name="fontSize">
+                                <InputNumber addonAfter="px" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="fontWeight" name="fontWeight">
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={20}>
+                        <Col span={12}>
+                            <Form.Item label="fontWeight" name="fontWeight">
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="fontFamily" name="fontFamily">
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={20}>
+                        <Col span={12}>
+                            <Form.Item label="fontStyle" name="fontStyle">
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="lineHeight" name="lineHeight">
+                                <InputNumber addonAfter="px" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={20}>
+                        <Col span={12}>
+                            <Form.Item label="charSpacing" name="charSpacing">
+                                <InputNumber addonAfter="px" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="textAlign" name="textAlign">
+                                <Select options={textAlignOptions} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Form.Item label="styles" name="styles">
+                        <Input.TextArea />
+                    </Form.Item>
+                    <Row gutter={20}>
+                        <Col span={8}>
+                            <Form.Item label="underline" name="underline" valuePropName="checked">
+                                <Checkbox />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item label="overline" name="overline" valuePropName="checked">
+                                <Checkbox />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item label="linethrough" name="linethrough" valuePropName="checked">
+                                <Checkbox />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={20}>
+                        <Col span={12}>
+                            <Form.Item label="minWidth" name="minWidth">
+                                <InputNumber addonAfter="px" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="direction" name="direction">
+                                <Select options={directionOptions} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <div className="sperate"></div>
+                </>
+            )}
+
             <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item label="originX" name="originX">

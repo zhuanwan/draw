@@ -48,6 +48,6 @@ export const menuProps = {
     text: {
         img: textSvg,
         name: '文本',
-        type: 'text',
+        type: 'Text',
     },
 };

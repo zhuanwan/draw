@@ -137,3 +137,29 @@ export const paintFirstOptions = [
         value: 'stroke',
     },
 ]
+
+export const textAlignOptions = [
+    {
+        label: 'left',
+        value: 'left',
+    },
+    {
+        label: 'center',
+        value: 'center',
+    },
+    {
+        label: 'right',
+        value: 'right',
+    },
+]
+
+export const directionOptions = [
+    {
+        label: 'ltr',
+        value: 'ltr',
+    },
+    {
+        label: 'rtl',
+        value: 'rtl',
+    },
+]

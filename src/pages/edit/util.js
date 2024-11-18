@@ -111,3 +111,18 @@ export const drawDefaultPath = (canvas, item) => {
     // 将路径添加到画布中
     canvas.add(path);
 };
+
+export const drawDefaulText = (canvas, item) => {
+    const { left, top } = item;
+    const text = new fabric.Textbox('文本内容', {
+        fill: '#f00',
+        stroke: 'blue',
+        strokeWidth: 2,
+        width: 300,
+        left,
+        top,
+    });
+
+    // 将路径添加到画布中
+    canvas.add(text);
+};

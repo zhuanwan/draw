@@ -10,6 +10,7 @@ import {
     drawDefaultPloygon,
     drawDefaultPloyline,
     drawDefaultPath,
+    drawDefaulText,
 } from '../util';
 import Drop from './Drop';
 import { debounce } from '@/utils';
@@ -68,6 +69,10 @@ const Component = () => {
             case 'Path':
                 drawDefaultPath(canvas, droppedItem);
                 break;
+            case 'Text':
+                drawDefaulText(canvas, droppedItem);
+                break;
+
             default:
                 break;
         }
