@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ColorPicker, Form, InputNumber  } from 'antd';
+import React, { useEffect } from 'react';
+import { ColorPicker, Form, InputNumber } from 'antd';
 
 const Component = () => {
     const [form] = Form.useForm();
@@ -24,13 +24,13 @@ const Component = () => {
     return (
         <Form form={form} onValuesChange={onValuesChange} className="form-com">
             <Form.Item label="宽度" name="width">
-                <InputNumber  addonAfter="px" />
+                <InputNumber addonAfter="px" />
             </Form.Item>
             <Form.Item label="高度" name="height">
-                <InputNumber  addonAfter="px" />
+                <InputNumber addonAfter="px" />
             </Form.Item>
             <Form.Item label="背景颜色" name="backgroundColor">
-                <ColorPicker format="hex" />
+                <ColorPicker format="hex" allowClear />
             </Form.Item>
         </Form>
     );

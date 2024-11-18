@@ -23,7 +23,7 @@ function DraggableDiv({ item }) {
             }}
             className="drag-item"
         >
-            <img src={item.img} alt={item.name} srcSet="" />
+            <img src={item.img} alt={item.name} srcSet="" title={item.name}/>
         </div>
     );
 }

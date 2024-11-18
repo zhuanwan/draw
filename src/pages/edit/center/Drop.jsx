@@ -16,10 +16,10 @@ const Component = ({ children, cb }) => {
             data: {
                 type: item.type,
                 name: item.name,
-                uuid: uuidv4()
-            }
+                uuid: uuidv4(),
+            },
         };
-        cb(newItem)
+        cb(newItem);
     };
 
     const [{ isOver }, drop] = useDrop(() => ({
@@ -35,13 +35,15 @@ const Component = ({ children, cb }) => {
 
     return (
         <div className="content-center" id="container">
-            <div ref={drop}>{children}</div>
+            <div ref={drop} className="scroll-div">
+                {children}
+            </div>
         </div>
     );
 };
 
 Component.propTypes = {
     chidren: PropTypes.element,
-    cb: PropTypes.func
+    cb: PropTypes.func,
 };
 export default Component;
