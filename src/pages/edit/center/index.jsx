@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setCvscActiveObjects, setRefreshNum } from '@/store/features/drawSlice';
 import * as fabric from 'fabric';
@@ -18,12 +18,27 @@ import './index.less';
 
 const Component = () => {
     const dispatch = useDispatch();
+    const ctrlPressedRef = useRef(false);
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Control' || e.key === 'Meta') {
+            ctrlPressedRef.current = true;
+        }
+    };
+
+    const handleKeyUp = (e) => {
+        if (e.key === 'Control' || e.key === 'Meta') {
+            ctrlPressedRef.current = false;
+        }
+    };
+
 
     const createCanvas = () => {
         console.log('初始化画布');
         const _canvas = new fabric.Canvas(document.getElementById('canvas'), {
             width: 1920,
             height: 1080,
+            selection: true,
         });
         _canvas.backgroundColor = '#fff';
         _canvas.renderAll();
@@ -39,7 +54,13 @@ const Component = () => {
         _canvas.on('selection:created', debounce(updateActiveObjects));
         _canvas.on('selection:updated', debounce(updateActiveObjects));
         _canvas.on('object:moving', debounce(updateActiveObjects));
+        _canvas.on('object:selected', debounce(updateActiveObjects));
         // _canvas.on('object:scaling', debounce(updateActiveObjects));
+
+        // 禁用浏览器默认的右键菜单
+        _canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
 
         return _canvas;
     };
@@ -79,9 +100,16 @@ const Component = () => {
     };
 
     useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
         if (!window._csv) {
             window._csv = createCanvas();
         }
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
     }, []);
 
     return (
