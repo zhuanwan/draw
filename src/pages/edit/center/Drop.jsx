@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -39,6 +39,22 @@ const Component = ({ children, cb }) => {
         }),
     }));
 
+    const handleKeyDown = (e) => {
+        // 检查是否按下了Ctrl + C 或 Ctrl + V
+        if (e.ctrlKey) {
+            if (e.key === 'c' || e.key === 'C') {
+                handleCopy();
+            } else if (e.key === 'v' || e.key === 'V') {
+                handlePaste();
+            }
+        }
+
+         // 检查是否按下了 DELETE 键
+         if (e.key === 'Delete' || e.key === 'Backspace') {
+            handleDelete();
+        }
+    };
+
     // 右键点击时显示菜单
     const handleRightClick = (e) => {
         e.preventDefault(); // 阻止默认的右键菜单
@@ -48,6 +64,8 @@ const Component = ({ children, cb }) => {
 
         const options = [];
         if (activeObjects?.length) {
+            options.push({ label: '复制', action: handleCopy });
+            options.push({ label: '粘贴', action: handlePaste });
             if (activeObjects.length === 1) {
                 options.push({ label: '上移', action: handleBringForward });
                 options.push({ label: '下移', action: handleSendBackward });
@@ -74,6 +92,43 @@ const Component = ({ children, cb }) => {
     // 隐藏菜单
     const hideMenu = () => {
         setMenuVisible(false);
+    };
+
+    // 复制
+    const handleCopy = async () => {
+        const activeObject = window._csv?.getActiveObject();
+        if (activeObject) {
+            activeObject.clone().then((cloned) => {
+                window._clipboard = cloned;
+            });
+        }
+    };
+
+    // 粘贴
+    const handlePaste = async () => {
+        // clone again, so you can do multiple copies.
+        const clonedObj = await window._clipboard.clone();
+        window._csv?.discardActiveObject();
+        clonedObj.set({
+            left: clonedObj.left + 10,
+            top: clonedObj.top + 10,
+            evented: true,
+        });
+        if (clonedObj instanceof fabric.ActiveSelection) {
+            // active selection needs a reference to the canvas.
+            clonedObj.canvas = window._csv;
+            clonedObj.forEachObject((obj) => {
+                window._csv.add(obj);
+            });
+            // this should solve the unselectability
+            clonedObj.setCoords();
+        } else {
+            window._csv.add(clonedObj);
+        }
+        window._clipboard.top += 10;
+        window._clipboard.left += 10;
+        window._csv.setActiveObject(clonedObj);
+        window._csv.requestRenderAll();
     };
 
     // 删除对象
@@ -180,6 +235,14 @@ const Component = ({ children, cb }) => {
             window._csv.renderAll();
         }
     };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     return (
         <div className="content-center" id="container">

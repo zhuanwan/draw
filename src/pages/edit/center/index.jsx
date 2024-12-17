@@ -18,20 +18,6 @@ import './index.less';
 
 const Component = () => {
     const dispatch = useDispatch();
-    const ctrlPressedRef = useRef(false);
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Control' || e.key === 'Meta') {
-            ctrlPressedRef.current = true;
-        }
-    };
-
-    const handleKeyUp = (e) => {
-        if (e.key === 'Control' || e.key === 'Meta') {
-            ctrlPressedRef.current = false;
-        }
-    };
-
 
     const createCanvas = () => {
         console.log('初始化画布');
@@ -100,16 +86,9 @@ const Component = () => {
     };
 
     useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-
         if (!window._csv) {
             window._csv = createCanvas();
         }
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-        };
     }, []);
 
     return (
