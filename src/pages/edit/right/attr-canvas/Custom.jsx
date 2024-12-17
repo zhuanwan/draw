@@ -1,8 +1,19 @@
 import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { ColorPicker, Form, InputNumber } from 'antd';
+import { saveState } from '@/store/features/historySlice';
 
 const Component = () => {
+    const dispatch = useDispatch();
     const [form] = Form.useForm();
+
+    const saveCanvasState = () => {
+        const json = window._csv.toJSON();
+        json.width = window._csv.width;
+        json.height = window._csv.height;
+        const state = JSON.stringify(json);
+        dispatch(saveState(state));
+    };
 
     // 这里设置window._csv 的 宽度、高度、颜色
     const onValuesChange = async (changedValues, allValues) => {
@@ -12,6 +23,7 @@ const Component = () => {
             window._csv.backgroundColor = colorHex === 'string' ? colorHex : colorHex?.toHexString();
         }
         window._csv.renderAll();
+        saveCanvasState();
     };
 
     useEffect(() => {

@@ -85,6 +85,7 @@ const Component = () => {
     useEffect(() => {
         if (!window._csv) {
             window._csv = createCanvas();
+            saveCanvasState();
         }
     }, []);
 

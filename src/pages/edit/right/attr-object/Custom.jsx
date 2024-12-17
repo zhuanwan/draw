@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Checkbox, ColorPicker, Form, InputNumber, Tooltip, Select, Input, Row, Col } from 'antd';
+import { saveState } from '@/store/features/historySlice';
 import * as fabric from 'fabric';
 const colorFieldNames = ['fill', 'stroke', 'backgroundColor'];
 const jsonFieldNames = ['points', 'strokeDashArray', 'path', 'styles'];
@@ -17,12 +18,21 @@ import {
 } from './data';
 
 const Component = () => {
+    const dispatch = useDispatch();
     const [form] = Form.useForm();
 
     const {
         cvsActiveObjects: [activeObject],
         refreshNum,
     } = useSelector((state) => state.draw);
+
+    const saveCanvasState = () => {
+        const json = window._csv.toJSON();
+        json.width = window._csv.width;
+        json.height = window._csv.height;
+        const state = JSON.stringify(json);
+        dispatch(saveState(state));
+    };
 
     function getPolygonPoints(sides, radius = 50, centerX = 0, centerY = 0) {
         const points = [];
@@ -110,6 +120,7 @@ const Component = () => {
         }
 
         window._csv.renderAll();
+        saveCanvasState();
     };
 
     useEffect(() => {

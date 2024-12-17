@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import * as fabric from 'fabric';
@@ -9,8 +9,6 @@ import { saveState, undo, redo } from '@/store/features/historySlice';
 import store from '@/store';
 
 const Component = ({ children, cb }) => {
-    const historyStack = useSelector((state) => state.history.historyStack);
-    const redoStack = useSelector((state) => state.history.redoStack);
     const dispatch = useDispatch();
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -278,12 +276,20 @@ const Component = ({ children, cb }) => {
         const state = s[s.length - 1];
         if (state) {
             var object = JSON.parse(state);
-            window._csv.loadFromJSON(state, () => {
-                window._csv.width = object.width;
-                window._csv.height = object.height;
-                window._csv.requestRenderAll(); // 确保所有的对象被重新渲染
-                dispatch(setCvscActiveObjects([]));
-            });
+
+            if (!object || !object.objects || object.objects.length === 0) {
+                window._csv.clear();
+                window._csv.backgroundColor = object.background;
+            } else {
+                window._csv.loadFromJSON(state, () => {
+                    window._csv.width = object.width;
+                    window._csv.height = object.height;
+
+                    // 如果有对象，直接调用 renderAll 来更新画布
+                    window._csv.requestRenderAll();
+                    // dispatch(setCvscActiveObjects([]));
+                });
+            }
         }
     };
 
