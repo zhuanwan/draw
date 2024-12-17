@@ -80,7 +80,7 @@ module.exports = {
             filename: 'index.html',
             chunks: ['app'],
             inject: true,
-            favicon: path.resolve(__dirname, '../src/static/imgs/favicon.ico'),
+            favicon: path.resolve(__dirname, '../src/static/imgs/favicon.png'),
             minify: {
                 html5: true,
                 collapseWhitespace: true,
