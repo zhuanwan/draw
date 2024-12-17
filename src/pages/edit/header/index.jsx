@@ -4,6 +4,7 @@ import JsonPreviewModal from './JsonPreviewModal';
 import './index.less';
 import { useDispatch } from 'react-redux';
 import { setCvscActiveObjects } from '@/store/features/drawSlice';
+import { clearHistory } from '@/store/features/historySlice';
 
 const Component = () => {
     const [JsonModalVisible, setJsonModalVisible] = useState(false);
@@ -46,11 +47,28 @@ const Component = () => {
                 </Space>
             ),
         },
+        {
+            key: '5',
+            label: (
+                <Space>
+                    <span>撤销</span>
+                    <span>Ctrl+Z</span>
+                </Space>
+            ),
+        },
+        {
+            key: '6',
+            label: (
+                <Space>
+                    <span>重做</span>
+                    <span>Ctrl+Y</span>
+                </Space>
+            ),
+        },
     ];
 
     const addNewCanvas = () => {
         window.$modal.confirm({
-            // icon: null,
             centered: true,
             title: '提示',
             width: '340px',
@@ -71,6 +89,7 @@ const Component = () => {
 
                 // 刷新画布以更新视图
                 window._csv.renderAll();
+                dispatch(clearHistory());
                 dispatch(setCvscActiveObjects([]));
             },
             onCancel() {},

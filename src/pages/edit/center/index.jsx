@@ -15,6 +15,7 @@ import {
 import Drop from './Drop';
 import { debounce } from '@/utils';
 import './index.less';
+import { saveState } from '@/store/features/historySlice';
 
 const Component = () => {
     const dispatch = useDispatch();
@@ -51,37 +52,33 @@ const Component = () => {
         return _canvas;
     };
 
+    function saveCanvasState() {
+        const json = window._csv.toJSON();
+        json.width = window._csv.width;
+        json.height = window._csv.height;
+        const state = JSON.stringify(json);
+        dispatch(saveState(state));
+    }
+
     const draw = (droppedItem) => {
         const canvas = window._csv;
         const { type } = droppedItem;
-        switch (type) {
-            case 'Line':
-                drawDefaultLine(canvas, droppedItem);
-                break;
-            case 'Rect':
-                drawDefaultRect(canvas, droppedItem);
-                break;
-            case 'Triangle':
-                drawDefaultTriangle(canvas, droppedItem);
-                break;
-            case 'Ellipse':
-                drawDefaultEllipse(canvas, droppedItem);
-                break;
-            case 'Ploygon':
-                drawDefaultPloygon(canvas, droppedItem);
-                break;
-            case 'Ployline':
-                drawDefaultPloyline(canvas, droppedItem);
-                break;
-            case 'Path':
-                drawDefaultPath(canvas, droppedItem);
-                break;
-            case 'Text':
-                drawDefaulText(canvas, droppedItem);
-                break;
+        const drawShapeMap = {
+            Line: drawDefaultLine,
+            Rect: drawDefaultRect,
+            Triangle: drawDefaultTriangle,
+            Ellipse: drawDefaultEllipse,
+            Ploygon: drawDefaultPloygon,
+            Ployline: drawDefaultPloyline,
+            Path: drawDefaultPath,
+            Text: drawDefaulText,
+        };
 
-            default:
-                break;
+        const drawShape = drawShapeMap[type];
+
+        if (drawShape) {
+            drawShape(canvas, droppedItem);
+            saveCanvasState();
         }
     };
 

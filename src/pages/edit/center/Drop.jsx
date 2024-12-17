@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import * as fabric from 'fabric';
 import { setCvscActiveObjects, setRefreshNum } from '@/store/features/drawSlice';
+import { saveState, undo, redo } from '@/store/features/historySlice';
+import store from '@/store';
 
 const Component = ({ children, cb }) => {
+    const historyStack = useSelector((state) => state.history.historyStack);
+    const redoStack = useSelector((state) => state.history.redoStack);
     const dispatch = useDispatch();
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -46,11 +50,15 @@ const Component = ({ children, cb }) => {
                 handleCopy();
             } else if (e.key === 'v' || e.key === 'V') {
                 handlePaste();
+            } else if (e.key === 'z') {
+                handleUndo(); // Ctrl+Z 撤销
+            } else if (e.key === 'y') {
+                handleRedo(); // Ctrl+Y 重做
             }
         }
 
-         // 检查是否按下了 DELETE 键
-         if (e.key === 'Delete' || e.key === 'Backspace') {
+        // 检查是否按下了 DELETE 键
+        if (e.key === 'Delete' || e.key === 'Backspace') {
             handleDelete();
         }
     };
@@ -128,7 +136,8 @@ const Component = ({ children, cb }) => {
         window._clipboard.top += 10;
         window._clipboard.left += 10;
         window._csv.setActiveObject(clonedObj);
-        window._csv.requestRenderAll();
+        window._csv.renderAll();
+        saveCanvasState();
     };
 
     // 删除对象
@@ -141,6 +150,7 @@ const Component = ({ children, cb }) => {
         });
         window._csv.discardActiveObject();
         window._csv.renderAll();
+        saveCanvasState();
         hideMenu();
     };
 
@@ -159,6 +169,7 @@ const Component = ({ children, cb }) => {
             window._csv.setActiveObject(group);
             dispatch(setCvscActiveObjects([group]));
             window._csv.renderAll();
+            saveCanvasState();
         }
         hideMenu();
     };
@@ -196,6 +207,7 @@ const Component = ({ children, cb }) => {
             window._csv.discardActiveObject();
             dispatch(setCvscActiveObjects([]));
             window._csv.renderAll();
+            saveCanvasState();
         }
         hideMenu();
     };
@@ -206,6 +218,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.bringObjectToFront(activeObject);
             window._csv.renderAll();
+            saveCanvasState();
         }
     };
 
@@ -215,6 +228,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.sendObjectToBack(activeObject);
             window._csv.renderAll();
+            saveCanvasState();
         }
     };
 
@@ -224,6 +238,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.bringObjectForward(activeObject);
             window._csv.renderAll();
+            saveCanvasState();
         }
     };
 
@@ -233,6 +248,42 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.sendObjectBackwards(activeObject);
             window._csv.renderAll();
+            saveCanvasState();
+        }
+    };
+
+    // 撤销操作
+    const handleUndo = () => {
+        dispatch(undo());
+        restoreCanvasState();
+    };
+
+    // 重做操作
+    const handleRedo = () => {
+        dispatch(redo());
+        restoreCanvasState();
+    };
+
+    function saveCanvasState() {
+        const json = window._csv.toJSON();
+        json.width = window._csv.width;
+        json.height = window._csv.height;
+        const state = JSON.stringify(json);
+        dispatch(saveState(state));
+    }
+
+    // 恢复 canvas 状态并重新渲染
+    const restoreCanvasState = () => {
+        const s = store.getState().history.historyStack;
+        const state = s[s.length - 1];
+        if (state) {
+            var object = JSON.parse(state);
+            window._csv.loadFromJSON(state, () => {
+                window._csv.width = object.width;
+                window._csv.height = object.height;
+                window._csv.requestRenderAll(); // 确保所有的对象被重新渲染
+                dispatch(setCvscActiveObjects([]));
+            });
         }
     };
 
