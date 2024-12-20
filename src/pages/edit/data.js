@@ -6,10 +6,12 @@ import ellipseSvg from '@/static/imgs/ellipse.svg'
 import polygonSvg from '@/static/imgs/polygon.svg'
 import polylineSvg from '@/static/imgs/polyline.svg'
 import pathSvg from '@/static/imgs/path.svg'
+import imageSvg from '@/static/imgs/image.svg'
+import svgSvg from '@/static/imgs/svg.svg'
 
 export const menu = ['line', 'rect', 'triangle', 'circle', 'polygon', 'polyline', 'ellipse', 'path'];
 
-export const menuProps = {
+export const dragMenuProps = {
     line: {
         img: lineSvg,
         name: '直线',
@@ -49,5 +51,19 @@ export const menuProps = {
         img: textSvg,
         name: '文本',
         type: 'Text',
+    },
+};
+
+
+export const clickMenuProps = {
+    image: {
+        img: imageSvg,
+        name: '图片',
+        type: 'Image',
+    },
+    svg: {
+        img: svgSvg,
+        name: 'SVG',
+        type: 'Svg',
     },
 };

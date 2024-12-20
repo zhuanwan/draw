@@ -32,3 +32,17 @@ export const debounce = (fn, delay = 500) => {
         }, delay);
     };
 };
+
+/**
+ *  blob 转 base64 图片
+ */
+export const blobToBase64 = (file) => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            // 获取到base64格式图片
+            resolve(reader.result);
+        };
+    });
+};
