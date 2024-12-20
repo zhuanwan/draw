@@ -3,12 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 export const drawSlice = createSlice({
     name: 'draw',
     initialState: {
-        cvsActiveObjects: [], // 活动对象
+        cvsActiveObject: [], // 活动对象
         refreshNum: 0,
     },
     reducers: {
-        setCvscActiveObjects: (state, action) => {
-            state.cvsActiveObjects = action.payload;
+        setCvscActiveObject: (state, action) => {
+            state.cvsActiveObject = action.payload;
         },
         setRefreshNum: (state, action) => {
             if (state.refreshNum > 1000000) {
@@ -20,6 +20,6 @@ export const drawSlice = createSlice({
     },
 });
 
-export const { setCvscActiveObjects, setRefreshNum } = drawSlice.actions;
+export const { setCvscActiveObject, setRefreshNum } = drawSlice.actions;
 
 export default drawSlice.reducer;

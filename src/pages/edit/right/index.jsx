@@ -6,18 +6,16 @@ import AttrObject from './attr-object';
 import './index.less';
 
 const Component = () => {
-    const { cvsActiveObjects } = useSelector((state) => state.draw);
-    const [type, setType] = useState(1); // 1 画布 2 单个object 3 多个object
+    const { cvsActiveObject } = useSelector((state) => state.draw);
+    const [type, setType] = useState(1); // 1 画布 2 单个object
 
     useEffect(() => {
-        if (cvsActiveObjects.length === 0) {
-            setType(1);
-        } else if (cvsActiveObjects.length === 1) {
+        if (cvsActiveObject) {
             setType(2);
         } else {
-            setType(3);
+            setType(1);
         }
-    }, [cvsActiveObjects]);
+    }, [cvsActiveObject]);
 
     return (
         <div className="tools-panel">

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setCvscActiveObjects, setRefreshNum } from '@/store/features/drawSlice';
+import { setCvscActiveObject } from '@/store/features/drawSlice';
 import * as fabric from 'fabric';
 import {
     drawDefaultLine,
@@ -15,7 +15,7 @@ import {
 import Drop from './Drop';
 import { debounce } from '@/utils';
 import './index.less';
-import { saveState } from '@/store/features/historySlice';
+import { setHistoryFlag } from '@/store/features/historySlice';
 
 const Component = () => {
     const dispatch = useDispatch();
@@ -30,19 +30,28 @@ const Component = () => {
         _canvas.backgroundColor = '#fff';
         _canvas.renderAll();
 
-        function updateActiveObjects() {
-            const allSelectedObjects = _canvas.getActiveObjects(); // 获取所有选中的对象
-            dispatch(setCvscActiveObjects(allSelectedObjects));
-            dispatch(setRefreshNum());
-        }
 
-        _canvas.on('mouse:down', debounce(updateActiveObjects));
-        // _canvas.on('mouse:move', debounce(updateActiveObjects));
-        _canvas.on('selection:created', debounce(updateActiveObjects));
-        _canvas.on('selection:updated', debounce(updateActiveObjects));
-        _canvas.on('object:moving', debounce(updateActiveObjects));
-        _canvas.on('object:selected', debounce(updateActiveObjects));
-        // _canvas.on('object:scaling', debounce(updateActiveObjects));
+        // 历史记录
+        const moveHistory = debounce(() => {
+            dispatch(setHistoryFlag(+new Date()));
+        }, 100);
+
+        let flag = false;
+        _canvas.on('mouse:down', (event) => {
+            flag = true;
+            dispatch(setCvscActiveObject(event.target));
+        });
+        _canvas.on('mouse:move', (event) => {
+            if (!flag) {
+                return;
+            }
+
+            dispatch(setCvscActiveObject(event.target));
+            moveHistory();
+        });
+        _canvas.on('mouse:up', (event) => {
+            flag = false;
+        });
 
         // 禁用浏览器默认的右键菜单
         _canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
@@ -51,14 +60,6 @@ const Component = () => {
 
         return _canvas;
     };
-
-    function saveCanvasState() {
-        const json = window._csv.toJSON();
-        json.width = window._csv.width;
-        json.height = window._csv.height;
-        const state = JSON.stringify(json);
-        dispatch(saveState(state));
-    }
 
     const draw = (droppedItem) => {
         const canvas = window._csv;
@@ -78,14 +79,14 @@ const Component = () => {
 
         if (drawShape) {
             drawShape(canvas, droppedItem);
-            saveCanvasState();
+            dispatch(setHistoryFlag(+new Date()));
         }
     };
 
     useEffect(() => {
         if (!window._csv) {
             window._csv = createCanvas();
-            saveCanvasState();
+            dispatch(setHistoryFlag(+new Date()));
         }
     }, []);
 

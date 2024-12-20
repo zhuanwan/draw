@@ -4,6 +4,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     historyStack: [],
     redoStack: [],
+    maxHistoryCount: 50, // 最大历史记录数
+    historyFlag: 0,
 };
 
 // 创建 Slice
@@ -11,10 +13,24 @@ const historySlice = createSlice({
     name: 'history',
     initialState,
     reducers: {
+        // 保存状态flag
+        setHistoryFlag: (state, action) => {
+           state.historyFlag = action.payload;
+        },
         // 保存当前状态到 historyStack
         saveState: (state, action) => {
+            // 先把当前状态加入 historyStack
             state.historyStack.push(action.payload);
-            state.redoStack = []; // 每次保存状态时清空 redoStack
+
+            // 如果历史记录超过最大数量，则删除最早的记录
+            if (state.historyStack.length > state.maxHistoryCount) {
+
+                console.log(`历史记录超过了${state.maxHistoryCount}条`)
+                state.historyStack.shift(); // 删除第一个元素
+            }
+
+            // 清空 redoStack，因为每次保存新状态时需要清空 redoStack
+            state.redoStack = [];
         },
         // 撤销操作
         undo: (state) => {
@@ -36,7 +52,7 @@ const historySlice = createSlice({
 });
 
 // 导出 actions
-export const { saveState, undo, redo, clearHistory } = historySlice.actions;
+export const { setHistoryFlag, saveState, undo, redo, clearHistory } = historySlice.actions;
 
 // 导出 reducer
 export default historySlice.reducer;

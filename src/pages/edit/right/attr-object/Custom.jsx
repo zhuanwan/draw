@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Checkbox, ColorPicker, Form, InputNumber, Tooltip, Select, Input, Row, Col } from 'antd';
-import { saveState } from '@/store/features/historySlice';
+import { setHistoryFlag } from '@/store/features/historySlice';
 import * as fabric from 'fabric';
 const colorFieldNames = ['fill', 'stroke', 'backgroundColor'];
 const jsonFieldNames = ['points', 'strokeDashArray', 'path', 'styles'];
@@ -21,18 +21,7 @@ const Component = () => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
 
-    const {
-        cvsActiveObjects: [activeObject],
-        refreshNum,
-    } = useSelector((state) => state.draw);
-
-    const saveCanvasState = () => {
-        const json = window._csv.toJSON();
-        json.width = window._csv.width;
-        json.height = window._csv.height;
-        const state = JSON.stringify(json);
-        dispatch(saveState(state));
-    };
+    const { cvsActiveObject: activeObject } = useSelector((state) => state.draw);
 
     function getPolygonPoints(sides, radius = 50, centerX = 0, centerY = 0) {
         const points = [];
@@ -119,8 +108,8 @@ const Component = () => {
             }
         }
 
-        window._csv.renderAll();
-        saveCanvasState();
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
     };
 
     useEffect(() => {
@@ -129,13 +118,13 @@ const Component = () => {
         }
         Object.keys(activeObject).forEach((key) => {
             if (jsonFieldNames.includes(key)) {
-                form.setFieldValue(key, JSON.stringify(activeObject[key]));
+                form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
             } else if (key.startsWith('self_')) {
             } else {
-                form.setFieldValue(key, activeObject[key]);
+                form.setFieldsValue({ [key]: activeObject[key] });
             }
         });
-    }, [activeObject, refreshNum]);
+    }, [activeObject]);
 
     return (
         <Form form={form} onValuesChange={onValuesChange} className="form-com">

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import JsonPreviewModal from './JsonPreviewModal';
 import './index.less';
 import { useDispatch } from 'react-redux';
-import { setCvscActiveObjects } from '@/store/features/drawSlice';
+import { setCvscActiveObject } from '@/store/features/drawSlice';
 import { clearHistory } from '@/store/features/historySlice';
 
 const Component = () => {
@@ -90,7 +90,7 @@ const Component = () => {
                 // 刷新画布以更新视图
                 window._csv.renderAll();
                 dispatch(clearHistory());
-                dispatch(setCvscActiveObjects([]));
+                dispatch(setCvscActiveObject(undefined));
             },
             onCancel() {},
         });

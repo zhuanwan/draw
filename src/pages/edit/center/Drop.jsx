@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import * as fabric from 'fabric';
-import { setCvscActiveObjects, setRefreshNum } from '@/store/features/drawSlice';
-import { saveState, undo, redo } from '@/store/features/historySlice';
+import { setCvscActiveObject } from '@/store/features/drawSlice';
+import { saveState, undo, redo, setHistoryFlag } from '@/store/features/historySlice';
 import store from '@/store';
 
 const Component = ({ children, cb }) => {
+    const { historyFlag } = useSelector((state) => state.history);
     const dispatch = useDispatch();
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -134,8 +135,8 @@ const Component = ({ children, cb }) => {
         window._clipboard.top += 10;
         window._clipboard.left += 10;
         window._csv.setActiveObject(clonedObj);
-        window._csv.renderAll();
-        saveCanvasState();
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
     };
 
     // 删除对象
@@ -147,8 +148,8 @@ const Component = ({ children, cb }) => {
             }
         });
         window._csv.discardActiveObject();
-        window._csv.renderAll();
-        saveCanvasState();
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
         hideMenu();
     };
 
@@ -165,9 +166,9 @@ const Component = ({ children, cb }) => {
 
             window._csv.add(group);
             window._csv.setActiveObject(group);
-            dispatch(setCvscActiveObjects([group]));
-            window._csv.renderAll();
-            saveCanvasState();
+            dispatch(setCvscActiveObject(group));
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
         }
         hideMenu();
     };
@@ -203,9 +204,9 @@ const Component = ({ children, cb }) => {
             window._csv.remove(group);
             // 清除当前激活的对象
             window._csv.discardActiveObject();
-            dispatch(setCvscActiveObjects([]));
-            window._csv.renderAll();
-            saveCanvasState();
+            dispatch(setCvscActiveObject(null));
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
         }
         hideMenu();
     };
@@ -215,8 +216,8 @@ const Component = ({ children, cb }) => {
         const activeObject = window._csv?.getActiveObject();
         if (activeObject) {
             window._csv.bringObjectToFront(activeObject);
-            window._csv.renderAll();
-            saveCanvasState();
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
         }
     };
 
@@ -225,8 +226,8 @@ const Component = ({ children, cb }) => {
         const activeObject = window._csv?.getActiveObject();
         if (activeObject) {
             window._csv.sendObjectToBack(activeObject);
-            window._csv.renderAll();
-            saveCanvasState();
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
         }
     };
 
@@ -235,8 +236,8 @@ const Component = ({ children, cb }) => {
         const activeObject = window._csv?.getActiveObject();
         if (activeObject) {
             window._csv.bringObjectForward(activeObject);
-            window._csv.renderAll();
-            saveCanvasState();
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
         }
     };
 
@@ -245,8 +246,8 @@ const Component = ({ children, cb }) => {
         const activeObject = window._csv?.getActiveObject();
         if (activeObject) {
             window._csv.sendObjectBackwards(activeObject);
-            window._csv.renderAll();
-            saveCanvasState();
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
         }
     };
 
@@ -262,13 +263,17 @@ const Component = ({ children, cb }) => {
         restoreCanvasState();
     };
 
-    function saveCanvasState() {
+    // 存储history
+    useEffect(() => {
+        if (!historyFlag || !window._csv) {
+            return;
+        }
         const json = window._csv.toJSON();
         json.width = window._csv.width;
         json.height = window._csv.height;
         const state = JSON.stringify(json);
         dispatch(saveState(state));
-    }
+    }, [historyFlag]);
 
     // 恢复 canvas 状态并重新渲染
     const restoreCanvasState = () => {
@@ -284,12 +289,10 @@ const Component = ({ children, cb }) => {
                 window._csv.loadFromJSON(state, () => {
                     window._csv.width = object.width;
                     window._csv.height = object.height;
-
-                    // 如果有对象，直接调用 renderAll 来更新画布
                     window._csv.requestRenderAll();
-                    // dispatch(setCvscActiveObjects([]));
                 });
             }
+            dispatch(setCvscActiveObject(null))
         }
     };
 
