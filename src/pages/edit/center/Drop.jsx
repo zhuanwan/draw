@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as fabric from 'fabric';
 import { setCvscActiveObject } from '@/store/features/drawSlice';
 import { saveState, undo, redo, setHistoryFlag } from '@/store/features/historySlice';
+import Ruler from './Ruler'
 import store from '@/store';
 
 const Component = ({ children, cb }) => {
@@ -60,6 +61,11 @@ const Component = ({ children, cb }) => {
         if (e.key === 'Delete' || e.key === 'Backspace') {
             handleDelete();
         }
+
+        // 方向键上下左右
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            handleDirection(e, e.key);
+        }
     };
 
     // 右键点击时显示菜单
@@ -83,6 +89,12 @@ const Component = ({ children, cb }) => {
                 }
             } else {
                 options.push({ label: '创建分组', action: handleCreateGroup });
+                options.push({ label: '左对齐', action: handleAlignLeft });
+                options.push({ label: '右对齐', action: handleAlignRight });
+                options.push({ label: '顶对齐', action: handleAlignTop });
+                options.push({ label: '底对齐', action: handleAlignBottom });
+                options.push({ label: '垂直居中对齐', action: handleAlignVertical });
+                options.push({ label: '水平居中对齐', action: handleAlignHorizontal });
             }
 
             options.push({ label: '删除', action: handleDelete });
@@ -263,6 +275,139 @@ const Component = ({ children, cb }) => {
         restoreCanvasState();
     };
 
+    // 方向键移动事件
+    const handleDirection = (e, type) => {
+        e?.preventDefault();
+        const activeObject = window._csv?.getActiveObject();
+        if (activeObject === null) return;
+        const distance = 1;
+        switch (type) {
+            // 向左
+            case 'ArrowLeft':
+                {
+                    const left = activeObject.left - distance;
+                    activeObject.set({
+                        left,
+                    });
+                }
+                break;
+            // 向右
+            case 'ArrowRight':
+                {
+                    const left = activeObject.left + distance;
+                    activeObject.set({
+                        left,
+                    });
+                }
+                break;
+            // 向上
+            case 'ArrowUp':
+                {
+                    const top = activeObject.top - distance;
+                    activeObject.set({
+                        top,
+                    });
+                }
+                break;
+            // 向下
+            case 'ArrowDown':
+                {
+                    const top = activeObject.top + distance;
+                    activeObject.set({
+                        top,
+                    });
+                }
+                break;
+            default:
+        }
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
+    // 左对齐
+    const handleAlignLeft = () => {
+        const activeObject = window._csv?.getActiveObject();
+        activeObject?._objects?.forEach((el) => {
+            const left = activeObject.width / 2 - activeObject.width;
+            el.set({
+                left,
+            });
+        });
+
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
+    // 右对齐
+    const handleAlignRight = () => {
+        const activeObject = window._csv?.getActiveObject();
+        activeObject?._objects?.forEach((el) => {
+            const left = activeObject.width - el.width - activeObject.width / 2;
+            el.set({
+                left,
+            });
+        });
+
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
+    // 顶对齐
+    const handleAlignTop = () => {
+        const activeObject = window._csv?.getActiveObject();
+        activeObject?._objects?.forEach((el) => {
+            const top = activeObject.height / 2 - activeObject.height;
+            el.set({
+                top,
+            });
+        });
+
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
+    // 底对齐
+    const handleAlignBottom = () => {
+        const activeObject = window._csv?.getActiveObject();
+        activeObject?._objects?.forEach((el) => {
+            const top = activeObject.height - el.height - activeObject.height / 2;
+            el.set({
+                top,
+            });
+        });
+
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
+    // 垂直居中对齐
+    const handleAlignVertical = () => {
+        const activeObject = window._csv?.getActiveObject();
+        activeObject?._objects?.forEach((el) => {
+            const left = (activeObject.width - el.width) / 2 - activeObject.width / 2;
+            el.set({
+                left,
+            });
+        });
+
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
+    // 水平居中对齐
+    const handleAlignHorizontal = () => {
+        const activeObject = window._csv?.getActiveObject();
+        activeObject?._objects?.forEach((el) => {
+            const top = (activeObject.height - el.height) / 2 - activeObject.height / 2;
+            el.set({
+                top,
+            });
+        });
+
+        window._csv.requestRenderAll();
+        dispatch(setHistoryFlag(+new Date()));
+    };
+
     // 存储history
     useEffect(() => {
         if (!historyFlag || !window._csv) {
@@ -292,7 +437,7 @@ const Component = ({ children, cb }) => {
                     window._csv.requestRenderAll();
                 });
             }
-            dispatch(setCvscActiveObject(null))
+            dispatch(setCvscActiveObject(null));
         }
     };
 
@@ -306,6 +451,7 @@ const Component = ({ children, cb }) => {
 
     return (
         <div className="content-center" id="container">
+            <Ruler />
             <div ref={drop} className="scroll-div" onContextMenu={handleRightClick} onClick={hideMenu}>
                 {children}
 

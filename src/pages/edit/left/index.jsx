@@ -2,10 +2,10 @@ import { useRef } from 'react';
 import * as fabric from 'fabric';
 import { useDrag } from 'react-dnd';
 import PropTypes from 'prop-types';
-
+import { useDispatch } from 'react-redux';
 import { dragMenuProps, clickMenuProps } from '@/pages/edit/data';
 import { blobToBase64 } from '@/utils';
-
+import { setHistoryFlag } from '@/store/features/historySlice';
 import './index.less';
 
 // 生成可拖拽的 Div 组件
@@ -36,6 +36,7 @@ DraggableDiv.propTypes = {
 };
 
 const Component = () => {
+    const dispatch = useDispatch();
     const picFileUploadRef = useRef(null); // 图片上传对象
     const svgFileUploadRef = useRef(null); // 文件上传对象
 
@@ -68,6 +69,7 @@ const Component = () => {
                         top: 0,
                     });
                     window._csv?.add(el); // 将图片添加到 canvas
+                    dispatch(setHistoryFlag(+new Date()));
                 };
             });
         }
@@ -85,7 +87,8 @@ const Component = () => {
                         left: 0,
                         top: 0,
                     });
-                    indow._csv?.add(el);
+                    window._csv?.add(el);
+                    dispatch(setHistoryFlag(+new Date()));
                 });
             });
         }
