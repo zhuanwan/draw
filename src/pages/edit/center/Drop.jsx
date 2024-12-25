@@ -11,6 +11,7 @@ import store from '@/store';
 
 const Component = ({ children, cb }) => {
     const { historyFlag } = useSelector((state) => state.history);
+    const { scale } = useSelector((state) => state.draw);
     const dispatch = useDispatch();
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -450,9 +451,9 @@ const Component = ({ children, cb }) => {
     }, []);
 
     return (
-        <div className="content-center" id="container">
+        <div className="content-center-top" id="container">
             <Ruler />
-            <div ref={drop} className="scroll-div" onContextMenu={handleRightClick} onClick={hideMenu}>
+            <div ref={drop} className="scroll-div" onContextMenu={handleRightClick} onClick={hideMenu} style={{transform: `scale(${scale})`}}>
                 {children}
 
                 {/* 右键菜单 */}

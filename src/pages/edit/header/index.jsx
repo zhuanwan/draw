@@ -1,4 +1,4 @@
-import { Button, Dropdown, Space } from 'antd';
+import { Button } from 'antd';
 import { useState } from 'react';
 import JsonPreviewModal from './JsonPreviewModal';
 import './index.less';
@@ -9,63 +9,6 @@ import { clearHistory } from '@/store/features/historySlice';
 const Component = () => {
     const [JsonModalVisible, setJsonModalVisible] = useState(false);
     const dispatch = useDispatch();
-
-    const items = [
-        {
-            key: '1',
-            label: (
-                <Space>
-                    <span>多选</span>
-                    <span>框选或左键+Shift</span>
-                </Space>
-            ),
-        },
-        {
-            key: '2',
-            label: (
-                <Space>
-                    <span>复制</span>
-                    <span>Ctrl+C</span>
-                </Space>
-            ),
-        },
-        {
-            key: '3',
-            label: (
-                <Space>
-                    <span>粘贴</span>
-                    <span>Ctrl+V</span>
-                </Space>
-            ),
-        },
-        {
-            key: '4',
-            label: (
-                <Space>
-                    <span>删除</span>
-                    <span>Delete或者Backspace</span>
-                </Space>
-            ),
-        },
-        {
-            key: '5',
-            label: (
-                <Space>
-                    <span>撤销</span>
-                    <span>Ctrl+Z</span>
-                </Space>
-            ),
-        },
-        {
-            key: '6',
-            label: (
-                <Space>
-                    <span>重做</span>
-                    <span>Ctrl+Y</span>
-                </Space>
-            ),
-        },
-    ];
 
     const addNewCanvas = () => {
         window.$modal.confirm({
@@ -102,9 +45,6 @@ const Component = () => {
                     <Button className="btn" onClick={addNewCanvas}>
                         新建画布
                     </Button>
-                    <Dropdown menu={{ items }} placement="bottom" arrow>
-                        <Button className="btn">操作提示</Button>
-                    </Dropdown>
                 </div>
                 <div className="right">
                     <Button onClick={() => setJsonModalVisible(true)}>JSON预览</Button>

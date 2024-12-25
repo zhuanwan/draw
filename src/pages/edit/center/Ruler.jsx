@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import * as fabric from 'fabric';
+import { useSelector } from 'react-redux';
 
 const Component = () => {
+    const { scale } = useSelector((state) => state.draw);
     const canvasRef = useRef();
 
     const draw = () => {
@@ -18,8 +20,8 @@ const Component = () => {
             canvasRef.current.setDimensions({ width, height });
         }
 
-        const scale = 1;
-        const tickLength = 10 * scale; // 刻度线长度随着缩放变化
+        console.log(777, scale)
+        const tickLength = 10; // 刻度线长度
         const tickSpacing = 10 * scale; // 刻度间隔随着缩放变化
         const pad = 30;
 
@@ -43,7 +45,7 @@ const Component = () => {
                     strokeWidth: 1,
                 });
                 canvasRef.current.add(tick);
-                const text = new fabric.FabricText(String(i * tickSpacing), {
+                const text = new fabric.FabricText(String(Math.round((i * tickSpacing)/scale)), {
                     top: tickLength,
                     left: x + 2,
                     fontSize: 10,
@@ -76,7 +78,7 @@ const Component = () => {
                     strokeWidth: 1,
                 });
                 canvasRef.current.add(tick);
-                const text = new fabric.FabricText(String(i * tickSpacing), {
+                const text = new fabric.FabricText(String(Math.round((i * tickSpacing)/scale)), {
                     top: y + 2,
                     left: tickLength,
                     fontSize: 10,
@@ -97,14 +99,17 @@ const Component = () => {
     useEffect(() => {
         // 添加resize事件监听器
         window.addEventListener('resize', draw);
-        setTimeout(() => {
-            draw(); // 初次更新尺寸
-        }, 200);
 
         return () => {
             window.removeEventListener('resize', draw);
         };
     }, []);
+
+    useEffect(() => {
+        setTimeout(() => {
+            draw();
+        }, 200);
+    }, [scale]);
 
     return (
         <div className="ruler">

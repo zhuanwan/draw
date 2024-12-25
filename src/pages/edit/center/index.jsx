@@ -16,6 +16,7 @@ import Drop from './Drop';
 import { debounce } from '@/utils';
 import './index.less';
 import { setHistoryFlag } from '@/store/features/historySlice';
+import CenterBottom from './CenterBottom';
 
 const Component = () => {
     const dispatch = useDispatch();
@@ -29,7 +30,6 @@ const Component = () => {
         });
         _canvas.backgroundColor = '#fff';
         _canvas.renderAll();
-
 
         // 历史记录
         const moveHistory = debounce(() => {
@@ -91,9 +91,12 @@ const Component = () => {
     }, []);
 
     return (
-        <Drop cb={draw}>
-            <canvas id="canvas"></canvas>
-        </Drop>
+        <div className="content-center">
+            <Drop cb={draw}>
+                <canvas id="canvas"></canvas>
+            </Drop>
+            <CenterBottom />
+        </div>
     );
 };
 

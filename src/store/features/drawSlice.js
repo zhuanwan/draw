@@ -5,6 +5,8 @@ export const drawSlice = createSlice({
     initialState: {
         cvsActiveObject: [], // 活动对象
         refreshNum: 0,
+        scale: 1, // 缩放
+        isLockScale: false, // 是否锁定缩放
     },
     reducers: {
         setCvscActiveObject: (state, action) => {
@@ -17,9 +19,15 @@ export const drawSlice = createSlice({
                 state.refreshNum = state.refreshNum + 1;
             }
         },
+        setScale: (state, action) => {
+            state.scale = action.payload;
+        },
+        setIsLockScale: (state, action) => {
+            state.isLockScale = action.payload;
+        },
     },
 });
 
-export const { setCvscActiveObject, setRefreshNum } = drawSlice.actions;
+export const { setCvscActiveObject, setRefreshNum, setScale, setIsLockScale } = drawSlice.actions;
 
 export default drawSlice.reducer;
