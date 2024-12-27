@@ -20,7 +20,7 @@ const Component = () => {
                 // 清除所有对象
                 window._csv.clear();
                 // 重置width/height
-                window._csv.setDimensions({ width: 1920, height: 1080 });
+                window._csv.setDimensions({ width: 1000, height: 800 });
                 // 重置背景
                 window._csv.backgroundColor = '#fff';
 

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as fabric from 'fabric';
 import { setCvscActiveObject } from '@/store/features/drawSlice';
 import { saveState, undo, redo, setHistoryFlag } from '@/store/features/historySlice';
-import Ruler from './Ruler'
+import Ruler from './Ruler';
 import store from '@/store';
 
 const Component = ({ children, cb }) => {
@@ -49,7 +49,8 @@ const Component = ({ children, cb }) => {
         if (e.ctrlKey) {
             if (e.key === 'c' || e.key === 'C') {
                 handleCopy();
-            } else if (e.key === 'v' || e.key === 'V') {
+            } else if (e.key === 'j' || e.key === 'J') {
+                e.preventDefault();
                 handlePaste();
             } else if (e.key === 'z') {
                 handleUndo(); // Ctrl+Z 撤销
@@ -126,6 +127,9 @@ const Component = ({ children, cb }) => {
 
     // 粘贴
     const handlePaste = async () => {
+        if (!window._clipboard) {
+            return;
+        }
         // clone again, so you can do multiple copies.
         const clonedObj = await window._clipboard.clone();
         window._csv?.discardActiveObject();
@@ -280,7 +284,7 @@ const Component = ({ children, cb }) => {
     const handleDirection = (e, type) => {
         e?.preventDefault();
         const activeObject = window._csv?.getActiveObject();
-        if (activeObject === null) return;
+        if (!activeObject) return;
         const distance = 1;
         switch (type) {
             // 向左
@@ -429,6 +433,7 @@ const Component = ({ children, cb }) => {
             var object = JSON.parse(state);
 
             if (!object || !object.objects || object.objects.length === 0) {
+                
                 window._csv.clear();
                 window._csv.backgroundColor = object.background;
             } else {
@@ -453,7 +458,13 @@ const Component = ({ children, cb }) => {
     return (
         <div className="content-center-top" id="container">
             <Ruler />
-            <div ref={drop} className="scroll-div" onContextMenu={handleRightClick} onClick={hideMenu} style={{transform: `scale(${scale})`}}>
+            <div
+                ref={drop}
+                className="scroll-div"
+                onContextMenu={handleRightClick}
+                onClick={hideMenu}
+                style={{ transform: `scale(${scale})` }}
+            >
                 {children}
 
                 {/* 右键菜单 */}

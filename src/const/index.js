@@ -11,9 +11,7 @@ export const LoadStateEnum = {
 
 // localstorage keys
 export const LocalstorageKeys = {
-    USER_INFO: 'user_info',
-    USER_ID: 'user_id',
-    C_ID: 'cid',
+    CANVAS: 'canvas',
 };
 
 // 文件类型

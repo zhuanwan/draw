@@ -41,7 +41,7 @@ const Component = () => {
             label: (
                 <Space>
                     <span>复制</span>
-                    <span>Ctrl+C</span>
+                    <span>Ctrl+c</span>
                 </Space>
             ),
         },
@@ -50,7 +50,7 @@ const Component = () => {
             label: (
                 <Space>
                     <span>粘贴</span>
-                    <span>Ctrl+V</span>
+                    <span>Ctrl+j</span>
                 </Space>
             ),
         },
@@ -68,7 +68,7 @@ const Component = () => {
             label: (
                 <Space>
                     <span>撤销</span>
-                    <span>Ctrl+Z</span>
+                    <span>Ctrl+z</span>
                 </Space>
             ),
         },
@@ -77,7 +77,7 @@ const Component = () => {
             label: (
                 <Space>
                     <span>重做</span>
-                    <span>Ctrl+Y</span>
+                    <span>Ctrl+y</span>
                 </Space>
             ),
         },

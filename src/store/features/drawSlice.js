@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const drawSlice = createSlice({
     name: 'draw',
     initialState: {
-        cvsActiveObject: [], // 活动对象
+        cvsActiveObject: undefined, // 活动对象
         refreshNum: 0,
         scale: 1, // 缩放
         isLockScale: false, // 是否锁定缩放

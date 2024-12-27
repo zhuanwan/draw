@@ -81,14 +81,13 @@ const Component = () => {
         for (const file of files) {
             blobToBase64(file).then((base64) => {
                 ev.target.value = '';
-                fabric.loadSVGFromURL(base64, (objects, options) => {
-                    const el = fabric.util.groupSVGElements(objects, options);
+                fabric.loadSVGFromURL(base64).then(({ objects }) => {
+                    const el = fabric.util.groupSVGElements(objects);
                     el.set({
-                        left: 0,
-                        top: 0,
+                        left: 10,
+                        top: 10,
                     });
                     window._csv?.add(el);
-                    dispatch(setHistoryFlag(+new Date()));
                 });
             });
         }

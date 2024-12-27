@@ -21,7 +21,9 @@ const Component = () => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
 
+    // let activeObject = window._csv?.getActiveObject();
     const { cvsActiveObject: activeObject } = useSelector((state) => state.draw);
+    const { historyFlag } = useSelector((state) => state.history);
 
     function getPolygonPoints(sides, radius = 50, centerX = 0, centerY = 0) {
         const points = [];
@@ -45,7 +47,12 @@ const Component = () => {
                 // 颜色相关
                 const colorHex = changedValues[key];
                 activeObject.set({ [key]: colorHex === 'string' ? colorHex : colorHex?.toHexString() });
-            } else if (jsonFieldNames.includes(key)) {
+
+                window._csv.requestRenderAll();
+                dispatch(setHistoryFlag(+new Date()));
+                return;
+            }
+            if (jsonFieldNames.includes(key)) {
                 // 需要转换数组格式
                 try {
                     const value = JSON.parse(changedValues[key]);
@@ -75,16 +82,22 @@ const Component = () => {
                         default:
                             break;
                     }
-
+                   
                     if (newObject) {
                         window._csv.add(newObject);
                         window._csv.setActiveObject(newObject);
                         window._csv.remove(activeObject); // 移除旧对象
                     }
+
+                    window._csv.requestRenderAll();
+                    dispatch(setHistoryFlag(+new Date()));
                 } catch (error) {
                     console.log(error);
                 }
-            } else if (key === 'self_points') {
+
+                return;
+            }
+            if (key === 'self_points') {
                 const [_, realKey] = key.split('_');
                 const newPoints = getPolygonPoints(changedValues[key]);
 
@@ -102,29 +115,35 @@ const Component = () => {
 
                 // 替换旧的多边形
                 window._csv.remove(activeObject); // 移除旧对象
-            } else {
-                // 其他
-                activeObject.set({ [key]: changedValues[key] });
-            }
-        }
 
-        window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+                window._csv.requestRenderAll();
+                dispatch(setHistoryFlag(+new Date()));
+                return;
+            }
+            // 其他
+            activeObject?.set({ [key]: changedValues[key] });
+            activeObject?.setCoords(); // 更新坐标
+
+            window._csv.requestRenderAll();
+            dispatch(setHistoryFlag(+new Date()));
+        }
     };
 
     useEffect(() => {
         if (!activeObject) {
             return;
         }
-        Object.keys(activeObject).forEach((key) => {
-            if (jsonFieldNames.includes(key)) {
-                form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
-            } else if (key.startsWith('self_')) {
-            } else {
-                form.setFieldsValue({ [key]: activeObject[key] });
-            }
-        });
-    }, [activeObject]);
+        setTimeout(() => {
+            Object.keys(activeObject).forEach((key) => {
+                if (jsonFieldNames.includes(key)) {
+                    form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
+                } else if (key.startsWith('self_')) {
+                } else {
+                    form.setFieldsValue({ [key]: activeObject[key] });
+                }
+            });
+        }, 200);
+    }, [activeObject, historyFlag]);
 
     return (
         <Form form={form} onValuesChange={onValuesChange} className="form-com">

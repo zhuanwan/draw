@@ -4,29 +4,28 @@ import { useSelector } from 'react-redux';
 
 const Component = () => {
     const { scale } = useSelector((state) => state.draw);
-    const canvasRef = useRef();
+    const ruleCanvasRef = useRef();
 
     const draw = () => {
         const containerEl = document.getElementById('container');
         const width = containerEl.scrollWidth;
         const height = containerEl.scrollHeight;
 
-        if (!canvasRef.current) {
-            canvasRef.current = new fabric.StaticCanvas(document.getElementById('ruler-canvas'), {
+        if (!ruleCanvasRef.current) {
+            ruleCanvasRef.current = new fabric.StaticCanvas(document.getElementById('ruler-canvas'), {
                 width: width,
                 height: height,
             });
         } else {
-            canvasRef.current.setDimensions({ width, height });
+            ruleCanvasRef.current.setDimensions({ width, height });
         }
 
-        console.log(777, scale)
         const tickLength = 10; // 刻度线长度
         const tickSpacing = 10 * scale; // 刻度间隔随着缩放变化
         const pad = 30;
 
         // 清空画布
-        canvasRef.current.clear();
+        ruleCanvasRef.current.clear();
 
         // 画水平背景
         const rect1 = new fabric.Rect({
@@ -34,7 +33,7 @@ const Component = () => {
             height: 2 * tickLength,
             fill: '#f2f2f2',
         });
-        canvasRef.current.add(rect1);
+        ruleCanvasRef.current.add(rect1);
 
         // 画水平刻度
         let i = 0;
@@ -44,20 +43,20 @@ const Component = () => {
                     stroke: '#999',
                     strokeWidth: 1,
                 });
-                canvasRef.current.add(tick);
-                const text = new fabric.FabricText(String(Math.round((i * tickSpacing)/scale)), {
+                ruleCanvasRef.current.add(tick);
+                const text = new fabric.FabricText(String(Math.round((i * tickSpacing) / scale)), {
                     top: tickLength,
                     left: x + 2,
                     fontSize: 10,
                     fill: '#666',
                 });
-                canvasRef.current.add(text);
+                ruleCanvasRef.current.add(text);
             } else {
                 const tick = new fabric.Line([x, 0, x, tickLength], {
                     stroke: '#999',
                     strokeWidth: 1,
                 });
-                canvasRef.current.add(tick);
+                ruleCanvasRef.current.add(tick);
             }
             i++;
         }
@@ -68,7 +67,7 @@ const Component = () => {
             height,
             fill: '#f2f2f2',
         });
-        canvasRef.current.add(rect2);
+        ruleCanvasRef.current.add(rect2);
         // 画垂直刻度
         i = 0;
         for (let y = pad; y <= height; y += tickSpacing) {
@@ -77,20 +76,20 @@ const Component = () => {
                     stroke: '#999',
                     strokeWidth: 1,
                 });
-                canvasRef.current.add(tick);
-                const text = new fabric.FabricText(String(Math.round((i * tickSpacing)/scale)), {
+                ruleCanvasRef.current.add(tick);
+                const text = new fabric.FabricText(String(Math.round((i * tickSpacing) / scale)), {
                     top: y + 2,
                     left: tickLength,
                     fontSize: 10,
                     fill: '#666',
                 });
-                canvasRef.current.add(text);
+                ruleCanvasRef.current.add(text);
             } else {
                 const tick = new fabric.Line([0, y, tickLength, y], {
                     stroke: '#999',
                     strokeWidth: 1,
                 });
-                canvasRef.current.add(tick);
+                ruleCanvasRef.current.add(tick);
             }
             i++;
         }

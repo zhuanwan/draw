@@ -24,8 +24,8 @@ const Component = () => {
     const createCanvas = () => {
         console.log('初始化画布');
         const _canvas = new fabric.Canvas(document.getElementById('canvas'), {
-            width: 1920,
-            height: 1080,
+            width: 1000,
+            height: 800,
             selection: true,
         });
         _canvas.backgroundColor = '#fff';
