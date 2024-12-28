@@ -49,7 +49,7 @@ const Component = () => {
                 activeObject.set({ [key]: colorHex === 'string' ? colorHex : colorHex?.toHexString() });
 
                 window._csv.requestRenderAll();
-                dispatch(setHistoryFlag(+new Date()));
+                dispatch(setHistoryFlag());
                 return;
             }
             if (jsonFieldNames.includes(key)) {
@@ -82,7 +82,7 @@ const Component = () => {
                         default:
                             break;
                     }
-                   
+
                     if (newObject) {
                         window._csv.add(newObject);
                         window._csv.setActiveObject(newObject);
@@ -90,7 +90,7 @@ const Component = () => {
                     }
 
                     window._csv.requestRenderAll();
-                    dispatch(setHistoryFlag(+new Date()));
+                    dispatch(setHistoryFlag());
                 } catch (error) {
                     console.log(error);
                 }
@@ -117,15 +117,14 @@ const Component = () => {
                 window._csv.remove(activeObject); // 移除旧对象
 
                 window._csv.requestRenderAll();
-                dispatch(setHistoryFlag(+new Date()));
+                dispatch(setHistoryFlag());
                 return;
             }
             // 其他
             activeObject?.set({ [key]: changedValues[key] });
             activeObject?.setCoords(); // 更新坐标
-
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
     };
 
@@ -133,16 +132,15 @@ const Component = () => {
         if (!activeObject) {
             return;
         }
-        setTimeout(() => {
-            Object.keys(activeObject).forEach((key) => {
-                if (jsonFieldNames.includes(key)) {
-                    form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
-                } else if (key.startsWith('self_')) {
-                } else {
-                    form.setFieldsValue({ [key]: activeObject[key] });
-                }
-            });
-        }, 200);
+
+        Object.keys(activeObject).forEach((key) => {
+            if (jsonFieldNames.includes(key)) {
+                form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
+            } else if (key.startsWith('self_')) {
+            } else {
+                form.setFieldsValue({ [key]: activeObject[key] });
+            }
+        });
     }, [activeObject, historyFlag]);
 
     return (

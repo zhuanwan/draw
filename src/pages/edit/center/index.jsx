@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setCvscActiveObject } from '@/store/features/drawSlice';
 import * as fabric from 'fabric';
 import {
     drawDefaultLine,
@@ -13,9 +12,9 @@ import {
     drawDefaulText,
 } from '../util';
 import Drop from './Drop';
-import { debounce } from '@/utils';
 import './index.less';
 import { setHistoryFlag } from '@/store/features/historySlice';
+import { setIsOptInCanvas } from '@/store/features/drawSlice';
 import CenterBottom from './CenterBottom';
 
 const Component = () => {
@@ -30,28 +29,6 @@ const Component = () => {
         });
         _canvas.backgroundColor = '#fff';
         _canvas.renderAll();
-
-        // 历史记录
-        const moveHistory = debounce(() => {
-            dispatch(setHistoryFlag(+new Date()));
-        }, 100);
-
-        let flag = false;
-        _canvas.on('mouse:down', (event) => {
-            flag = true;
-            dispatch(setCvscActiveObject(event.target));
-        });
-        _canvas.on('mouse:move', (event) => {
-            if (!flag) {
-                return;
-            }
-
-            dispatch(setCvscActiveObject(event.target));
-            moveHistory();
-        });
-        _canvas.on('mouse:up', (event) => {
-            flag = false;
-        });
 
         // 禁用浏览器默认的右键菜单
         _canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
@@ -79,14 +56,15 @@ const Component = () => {
 
         if (drawShape) {
             drawShape(canvas, droppedItem);
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setIsOptInCanvas(true));
+            dispatch(setHistoryFlag());
         }
     };
 
     useEffect(() => {
         if (!window._csv) {
             window._csv = createCanvas();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
     }, []);
 

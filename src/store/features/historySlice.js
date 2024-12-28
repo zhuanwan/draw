@@ -15,7 +15,11 @@ const historySlice = createSlice({
     reducers: {
         // 保存状态flag
         setHistoryFlag: (state, action) => {
-           state.historyFlag = action.payload;
+            if (state.historyFlag > 1000000) {
+                state.historyFlag = 0;
+            } else {
+                state.historyFlag = state.historyFlag + 1;
+            }
         },
         // 保存当前状态到 historyStack
         saveState: (state, action) => {
@@ -24,8 +28,7 @@ const historySlice = createSlice({
 
             // 如果历史记录超过最大数量，则删除最早的记录
             if (state.historyStack.length > state.maxHistoryCount) {
-
-                console.log(`历史记录超过了${state.maxHistoryCount}条`)
+                console.log(`历史记录超过了${state.maxHistoryCount}条`);
                 state.historyStack.shift(); // 删除第一个元素
             }
 

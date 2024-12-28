@@ -11,7 +11,7 @@ import store from '@/store';
 
 const Component = ({ children, cb }) => {
     const { historyFlag } = useSelector((state) => state.history);
-    const { scale } = useSelector((state) => state.draw);
+    const { scale, isOptInCanvas } = useSelector((state) => state.draw);
     const dispatch = useDispatch();
     const [menuVisible, setMenuVisible] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -45,23 +45,35 @@ const Component = ({ children, cb }) => {
     }));
 
     const handleKeyDown = (e) => {
-        // 检查是否按下了Ctrl + C 或 Ctrl + V
+        if (!store.getState().draw.isOptInCanvas) {
+            return;
+        }
+        // 检查是否按下了Ctrl + 键
         if (e.ctrlKey) {
             if (e.key === 'c' || e.key === 'C') {
                 handleCopy();
-            } else if (e.key === 'j' || e.key === 'J') {
+                return
+            } 
+            
+            if (e.key === 'v' || e.key === 'V') {
                 e.preventDefault();
                 handlePaste();
-            } else if (e.key === 'z') {
+                return
+            }
+             if (e.key === 'z' || e.key === 'Z') {
                 handleUndo(); // Ctrl+Z 撤销
-            } else if (e.key === 'y') {
+                return
+            } 
+            if (e.key === 'y' || e.key === 'Y') {
                 handleRedo(); // Ctrl+Y 重做
+                return
             }
         }
 
         // 检查是否按下了 DELETE 键
         if (e.key === 'Delete' || e.key === 'Backspace') {
             handleDelete();
+            return
         }
 
         // 方向键上下左右
@@ -153,7 +165,7 @@ const Component = ({ children, cb }) => {
         window._clipboard.left += 10;
         window._csv.setActiveObject(clonedObj);
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 删除对象
@@ -166,7 +178,7 @@ const Component = ({ children, cb }) => {
         });
         window._csv.discardActiveObject();
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
         hideMenu();
     };
 
@@ -185,7 +197,7 @@ const Component = ({ children, cb }) => {
             window._csv.setActiveObject(group);
             dispatch(setCvscActiveObject(group));
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
         hideMenu();
     };
@@ -223,7 +235,7 @@ const Component = ({ children, cb }) => {
             window._csv.discardActiveObject();
             dispatch(setCvscActiveObject(null));
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
         hideMenu();
     };
@@ -234,7 +246,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.bringObjectToFront(activeObject);
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
     };
 
@@ -244,7 +256,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.sendObjectToBack(activeObject);
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
     };
 
@@ -254,7 +266,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.bringObjectForward(activeObject);
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
     };
 
@@ -264,7 +276,7 @@ const Component = ({ children, cb }) => {
         if (activeObject) {
             window._csv.sendObjectBackwards(activeObject);
             window._csv.requestRenderAll();
-            dispatch(setHistoryFlag(+new Date()));
+            dispatch(setHistoryFlag());
         }
     };
 
@@ -326,7 +338,7 @@ const Component = ({ children, cb }) => {
             default:
         }
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 左对齐
@@ -340,7 +352,7 @@ const Component = ({ children, cb }) => {
         });
 
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 右对齐
@@ -354,7 +366,7 @@ const Component = ({ children, cb }) => {
         });
 
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 顶对齐
@@ -368,7 +380,7 @@ const Component = ({ children, cb }) => {
         });
 
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 底对齐
@@ -382,7 +394,7 @@ const Component = ({ children, cb }) => {
         });
 
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 垂直居中对齐
@@ -396,7 +408,7 @@ const Component = ({ children, cb }) => {
         });
 
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 水平居中对齐
@@ -410,7 +422,7 @@ const Component = ({ children, cb }) => {
         });
 
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     // 存储history
@@ -433,7 +445,6 @@ const Component = ({ children, cb }) => {
             var object = JSON.parse(state);
 
             if (!object || !object.objects || object.objects.length === 0) {
-                
                 window._csv.clear();
                 window._csv.backgroundColor = object.background;
             } else {

@@ -28,6 +28,10 @@ const Component = () => {
 
     const items = [
         {
+            key: '0',
+            label: '如果快捷键不生效，点下画布'
+        },
+        {
             key: '1',
             label: (
                 <Space>
@@ -50,7 +54,7 @@ const Component = () => {
             label: (
                 <Space>
                     <span>粘贴</span>
-                    <span>Ctrl+j</span>
+                    <span>Ctrl+v</span>
                 </Space>
             ),
         },

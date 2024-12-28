@@ -16,7 +16,7 @@ const Component = () => {
             window._csv.backgroundColor = colorHex === 'string' ? colorHex : colorHex?.toHexString();
         }
         window._csv.requestRenderAll();
-        dispatch(setHistoryFlag(+new Date()));
+        dispatch(setHistoryFlag());
     };
 
     useEffect(() => {

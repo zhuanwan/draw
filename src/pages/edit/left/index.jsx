@@ -69,7 +69,7 @@ const Component = () => {
                         top: 0,
                     });
                     window._csv?.add(el); // 将图片添加到 canvas
-                    dispatch(setHistoryFlag(+new Date()));
+                    dispatch(setHistoryFlag());
                 };
             });
         }
