@@ -30,6 +30,15 @@ const Component = () => {
         _canvas.backgroundColor = '#fff';
         _canvas.renderAll();
 
+        // 导出自定义属性 data
+        fabric.BaseFabricObject.prototype.toObject = (function (toObject) {
+            return function () {
+                return Object.assign(toObject.call(this), {
+                    data: this.data || null,
+                });
+            };
+        })(fabric.BaseFabricObject.prototype.toObject);
+
         // 禁用浏览器默认的右键菜单
         _canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
             e.preventDefault();

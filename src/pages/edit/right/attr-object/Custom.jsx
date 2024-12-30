@@ -5,6 +5,7 @@ import { setHistoryFlag } from '@/store/features/historySlice';
 import * as fabric from 'fabric';
 const colorFieldNames = ['fill', 'stroke', 'backgroundColor'];
 const jsonFieldNames = ['points', 'strokeDashArray', 'path', 'styles'];
+const dataFieldNames = ['aniFlowSpeed'];
 
 import {
     globalCompositeOperationOptions,
@@ -43,6 +44,12 @@ const Component = () => {
         const keys = Object.keys(changedValues);
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
+            if (dataFieldNames.includes(key)) {
+                activeObject.set({ data: { ...activeObject.data, [key]: changedValues[key] } });
+                window._csv.requestRenderAll();
+                dispatch(setHistoryFlag());
+                return;
+            }
             if (colorFieldNames.includes(key)) {
                 // 颜色相关
                 const colorHex = changedValues[key];
@@ -174,8 +181,13 @@ const Component = () => {
         }
 
         Object.keys(activeObject).forEach((key) => {
-            if (key === 'self_aniSpeed') {
-                startStrokeDashAnimation(activeObject, activeObject[key]);
+            if (key === 'data') {
+                Object.keys(activeObject['data']).forEach((dKey) => {
+                    if (dKey === 'aniFlowSpeed') {
+                        startStrokeDashAnimation(activeObject, activeObject['data']['aniFlowSpeed']);
+                        form.setFieldsValue({ [aniFlowSpeed]: activeObject['data']['aniFlowSpeed'] });
+                    }
+                });
             } else if (jsonFieldNames.includes(key)) {
                 form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
             } else if (key.startsWith('self_')) {
@@ -422,11 +434,11 @@ const Component = () => {
                 <Col span={12}>
                     <Form.Item
                         label={
-                            <Tooltip placement="top" title="线条动画速度,示例:0.1">
-                                self_aniSpeed
+                            <Tooltip placement="top" title="虚线动画速度,示例:1">
+                                aniFlowSpeed
                             </Tooltip>
                         }
-                        name="self_aniSpeed"
+                        name="aniFlowSpeed"
                     >
                         <InputNumber />
                     </Form.Item>
