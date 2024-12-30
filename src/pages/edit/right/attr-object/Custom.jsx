@@ -128,13 +128,55 @@ const Component = () => {
         }
     };
 
+    const startStrokeDashAnimation = (actActiveObject, speed) => {
+        if (!actActiveObject || !speed) {
+            cancelStrokeDashAnimation(actActiveObject);
+            return;
+        }
+
+        const maxDashOffset = 999999999; // 虚线的最大偏移量
+        let dashOffset = 0; // 初始偏移量
+
+        // 动画函数
+        const animate = () => {
+            if (!actActiveObject || actActiveObject._cancelAnimation) return; // 对象被移除或动画被取消时停止
+
+            dashOffset += speed; // 每帧增加偏移量
+            if (dashOffset > maxDashOffset) {
+                dashOffset = 0; // 超过最大偏移量时重置
+            }
+
+            actActiveObject.set({ strokeDashOffset: dashOffset });
+            window._csv.renderAll(); // 渲染画布
+
+            fabric.util.requestAnimFrame(animate); // 循环调用自身
+        };
+
+        // 标记当前对象的动画状态
+        actActiveObject._cancelAnimation = false;
+        animate(); // 启动动画
+    };
+
+    // 取消动画
+    const cancelStrokeDashAnimation = (actActiveObject) => {
+        if (actActiveObject) {
+            actActiveObject._cancelAnimation = true; // 标记取消动画
+            actActiveObject.set({
+                strokeDashOffset: 0, // 取消动画时清除偏移量
+            });
+            window._csv.renderAll();
+        }
+    };
+
     useEffect(() => {
         if (!activeObject) {
             return;
         }
 
         Object.keys(activeObject).forEach((key) => {
-            if (jsonFieldNames.includes(key)) {
+            if (key === 'self_aniSpeed') {
+                startStrokeDashAnimation(activeObject, activeObject[key]);
+            } else if (jsonFieldNames.includes(key)) {
                 form.setFieldsValue({ [key]: JSON.stringify(activeObject[key]) });
             } else if (key.startsWith('self_')) {
             } else {
@@ -147,12 +189,15 @@ const Component = () => {
         <Form form={form} onValuesChange={onValuesChange} className="form-com">
             <Form.Item label="type">{activeObject?.type}</Form.Item>
 
-            {activeObject?.type === 'textbox' && (
-                <>
-                    <Form.Item label="text" name="text">
-                        <Input />
-                    </Form.Item>
-                    <Row gutter={20}>
+            <Row gutter={20}>
+                {activeObject?.type === 'textbox' && (
+                    <>
+                        <Col span={24}>
+                            <Form.Item label="text" name="text">
+                                <Input />
+                            </Form.Item>
+                        </Col>
+
                         <Col span={12}>
                             <Form.Item label="fontSize" name="fontSize">
                                 <InputNumber addonAfter="px" />
@@ -163,8 +208,7 @@ const Component = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
-                    </Row>
-                    <Row gutter={20}>
+
                         <Col span={12}>
                             <Form.Item label="fontWeight" name="fontWeight">
                                 <Input />
@@ -175,8 +219,7 @@ const Component = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
-                    </Row>
-                    <Row gutter={20}>
+
                         <Col span={12}>
                             <Form.Item label="fontStyle" name="fontStyle">
                                 <Input />
@@ -187,8 +230,7 @@ const Component = () => {
                                 <InputNumber addonAfter="px" />
                             </Form.Item>
                         </Col>
-                    </Row>
-                    <Row gutter={20}>
+
                         <Col span={12}>
                             <Form.Item label="charSpacing" name="charSpacing">
                                 <InputNumber addonAfter="px" />
@@ -199,12 +241,13 @@ const Component = () => {
                                 <Select options={textAlignOptions} />
                             </Form.Item>
                         </Col>
-                    </Row>
 
-                    <Form.Item label="styles" name="styles">
-                        <Input.TextArea />
-                    </Form.Item>
-                    <Row gutter={20}>
+                        <Col span={24}>
+                            <Form.Item label="styles" name="styles">
+                                <Input.TextArea />
+                            </Form.Item>
+                        </Col>
+
                         <Col span={8}>
                             <Form.Item label="underline" name="underline" valuePropName="checked">
                                 <Checkbox />
@@ -220,9 +263,7 @@ const Component = () => {
                                 <Checkbox />
                             </Form.Item>
                         </Col>
-                    </Row>
 
-                    <Row gutter={20}>
                         <Col span={12}>
                             <Form.Item label="minWidth" name="minWidth">
                                 <InputNumber addonAfter="px" />
@@ -233,12 +274,12 @@ const Component = () => {
                                 <Select options={directionOptions} />
                             </Form.Item>
                         </Col>
-                    </Row>
-                    <div className="sperate"></div>
-                </>
-            )}
+                        <Col span={24}>
+                            <div className="sperate"></div>
+                        </Col>
+                    </>
+                )}
 
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item label="originX" name="originX">
                         <Select options={originXOptions} />
@@ -249,8 +290,7 @@ const Component = () => {
                         <Select options={originYOptions} />
                     </Form.Item>
                 </Col>
-            </Row>
-            <Row gutter={20}>
+
                 <Col span={12}>
                     <Form.Item label="left" name="left">
                         <InputNumber addonAfter="px" />
@@ -261,8 +301,7 @@ const Component = () => {
                         <InputNumber addonAfter="px" />
                     </Form.Item>
                 </Col>
-            </Row>
-            <Row gutter={20}>
+
                 <Col span={12}>
                     <Form.Item label="width" name="width">
                         <InputNumber addonAfter="px" />
@@ -273,8 +312,7 @@ const Component = () => {
                         <InputNumber addonAfter="px" />
                     </Form.Item>
                 </Col>
-            </Row>
-            <Row gutter={20}>
+
                 <Col span={12}>
                     <Form.Item label="rx" name="rx">
                         <InputNumber addonAfter="px" />
@@ -285,13 +323,15 @@ const Component = () => {
                         <InputNumber addonAfter="px" />
                     </Form.Item>
                 </Col>
-            </Row>
-            <Form.Item label="fill" name="fill">
-                <ColorPicker format="hex" allowClear />
-            </Form.Item>
-            <div className="sperate"></div>
+                <Col span={24}>
+                    <Form.Item label="fill" name="fill">
+                        <ColorPicker format="hex" allowClear />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <div className="sperate"></div>
+                </Col>
 
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item label="stroke" name="stroke">
                         <ColorPicker format="hex" allowClear />
@@ -302,9 +342,7 @@ const Component = () => {
                         <InputNumber addonAfter="px" />
                     </Form.Item>
                 </Col>
-            </Row>
 
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item
                         label={
@@ -322,9 +360,7 @@ const Component = () => {
                         <InputNumber />
                     </Form.Item>
                 </Col>
-            </Row>
 
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item
                         label={
@@ -349,9 +385,7 @@ const Component = () => {
                         <Select options={strokeLineJoinOptions} />
                     </Form.Item>
                 </Col>
-            </Row>
 
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item
                         label={
@@ -384,21 +418,35 @@ const Component = () => {
                         <InputNumber />
                     </Form.Item>
                 </Col>
-            </Row>
 
-            <Form.Item
-                label={
-                    <Tooltip placement="top" title="先绘制填充还是先绘制描边">
-                        paintFirst
-                    </Tooltip>
-                }
-                name="paintFirst"
-            >
-                <Select options={paintFirstOptions} />
-            </Form.Item>
+                <Col span={12}>
+                    <Form.Item
+                        label={
+                            <Tooltip placement="top" title="线条动画速度,示例:0.1">
+                                self_aniSpeed
+                            </Tooltip>
+                        }
+                        name="self_aniSpeed"
+                    >
+                        <InputNumber />
+                    </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item
+                        label={
+                            <Tooltip placement="top" title="先绘制填充还是先绘制描边">
+                                paintFirst
+                            </Tooltip>
+                        }
+                        name="paintFirst"
+                    >
+                        <Select options={paintFirstOptions} />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <div className="sperate"></div>
+                </Col>
 
-            <div className="sperate"></div>
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item label="scaleX" name="scaleX">
                         <InputNumber />
@@ -409,11 +457,12 @@ const Component = () => {
                         <InputNumber />
                     </Form.Item>
                 </Col>
-            </Row>
-            <Form.Item label="angle" name="angle">
-                <InputNumber />
-            </Form.Item>
-            <Row gutter={20}>
+                <Col span={12}>
+                    <Form.Item label="angle" name="angle">
+                        <InputNumber />
+                    </Form.Item>
+                </Col>
+
                 <Col span={12}>
                     <Form.Item label="flipX" name="flipX" valuePropName="checked">
                         <Checkbox />
@@ -424,20 +473,20 @@ const Component = () => {
                         <Checkbox />
                     </Form.Item>
                 </Col>
-            </Row>
 
-            <Form.Item
-                label={
-                    <Tooltip placement="top" title="阴影示例: 10px 10px 5px rgba(0, 0, 0, 0.5)">
-                        shadow
-                    </Tooltip>
-                }
-                name="shadow"
-            >
-                <Input />
-            </Form.Item>
+                <Col span={12}>
+                    <Form.Item
+                        label={
+                            <Tooltip placement="top" title="阴影示例: 10px 10px 5px rgba(0, 0, 0, 0.5)">
+                                shadow
+                            </Tooltip>
+                        }
+                        name="shadow"
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
 
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item label="opacity" name="opacity">
                         <InputNumber />
@@ -448,15 +497,17 @@ const Component = () => {
                         <Checkbox />
                     </Form.Item>
                 </Col>
-            </Row>
+                <Col span={24}>
+                    <Form.Item label="backgroundColor" name="backgroundColor">
+                        <ColorPicker format="hex" allowClear />
+                    </Form.Item>
+                </Col>
+                <Col span={24}>
+                    <Form.Item label="globalCompositeOperation" name="globalCompositeOperation">
+                        <Select options={globalCompositeOperationOptions} />
+                    </Form.Item>
+                </Col>
 
-            <Form.Item label="backgroundColor" name="backgroundColor">
-                <ColorPicker format="hex" allowClear />
-            </Form.Item>
-            <Form.Item label="globalCompositeOperation" name="globalCompositeOperation">
-                <Select options={globalCompositeOperationOptions} />
-            </Form.Item>
-            <Row gutter={20}>
                 <Col span={12}>
                     <Form.Item label="skewX" name="skewX">
                         <InputNumber />
